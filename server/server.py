@@ -1,8 +1,3 @@
-# import sys
-# import os
-# sys.path.append(os.getcwd())
-# print sys.path
-
 import json
 import random
 import threading
@@ -13,8 +8,10 @@ from geventwebsocket.handler import WebSocketHandler
 from game.game import Game
 import json
 
+SiNGLE_PLAYER = True
+
 class GameApp(object):
-    next_client_id = 0
+    next_player_id = 0
 
     def __init__(self, *args, **kwargs):
         self.game = Game(60)
@@ -23,17 +20,17 @@ class GameApp(object):
         self.game_thread.start()
 
     def __call__(self, environ, start_response):
-        client_id = next_client_id
-        next_client_id += 1
+        player_id = next_player_id
+        next_player_id += 1
 
         websocket = environ['wsgi.websocket']
 
-        client_connect_message = {
-            'type': 'client_connect',
-            'client_id': client_id,
+        player_connect_message = {
+            'type': 'player_connect',
+            'player_id': player_id,
             'websocket': websocket,
         }
-        self.game.on_message(client_connect_message)
+        self.game.on_message(player_connect_message)
 
         while True:
             recv_data = websocket.receive()
@@ -45,11 +42,11 @@ class GameApp(object):
             message['player_id'] = player_id
             self.game.on_message(message_dict)
 
-        client_disconnect_message = {
-            'type': 'client_disconnect',
-            'client_id': client_id,
+        player_disconnect_message = {
+            'type': 'player_disconnect',
+            'player_id': player_id,
         }
-        self.game.on_message(client_connect_message)
+        self.game.on_message(player_connect_message)
 
 server = pywsgi.WSGIServer(("", 8000), GameApp(), handler_class=WebSocketHandler)
 server.serve_forever()
