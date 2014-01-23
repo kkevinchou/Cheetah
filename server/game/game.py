@@ -19,7 +19,7 @@ class Game(BaseGame):
         message['timestamp'] = time.time()
 
         if 'player_id' in message:
-            print '[Player {}] Received message: {}'.format(message['player_id'], message)
+            print '***** Received message from [Player {}]:\n    {}'.format(message['player_id'], message)
 
         self.in_messages.put(message)
 
@@ -47,10 +47,14 @@ class Game(BaseGame):
                 message['websocket'],
             )
             self.players[player.id] = player
+        elif message['type'] == 'player_disconnect':
+            self.players.pop(message['player_id'])
+            print self.players
 
         if message['type'] not in ECHO_IGNORED_MESSAGE_TYPES:
             player = self.players[message['player_id']]
             network_component = player.get_component(CNetworkPlayer.component_id)
+            print '***** Sending message to [Player {}]:\n    {}'.format(message['player_id'], message)
             network_component.send_message(message)
 
     def render(self):

@@ -15,6 +15,8 @@ def client():
     time.sleep(2)
     ws = create_connection("ws://127.0.0.1:8000")
     ws.send('{"type": "client_test", "field": "meep!"}')
+    time.sleep(2)
+    ws.close()
 
 class GameApp(object):
     next_player_id = 0
@@ -33,8 +35,6 @@ class GameApp(object):
     def __call__(self, environ, start_response):
         player_id = self.next_player_id
         self.next_player_id += 1
-
-        print '[Player {}] Connected'.format(player_id)
 
         websocket = environ['wsgi.websocket']
 
@@ -60,8 +60,6 @@ class GameApp(object):
             'player_id': player_id,
         }
         self.game.on_message(player_disconnect_message)
-
-        print '[Player {}] Disconnected'.format(player_id)
 
 server = pywsgi.WSGIServer(("", 8000), GameApp(), handler_class=WebSocketHandler)
 server.serve_forever()
