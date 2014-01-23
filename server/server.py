@@ -9,14 +9,7 @@ from geventwebsocket.handler import WebSocketHandler
 from game.game import Game
 from websocket import create_connection
 
-SiNGLE_PLAYER = True
-
-def client():
-    time.sleep(2)
-    ws = create_connection("ws://127.0.0.1:8000")
-    ws.send('{"type": "client_test", "field": "meep!"}')
-    time.sleep(2)
-    ws.close()
+SINGLE_PLAYER = False
 
 class GameApp(object):
     next_player_id = 0
@@ -27,8 +20,8 @@ class GameApp(object):
         self.game_thread.daemon = True
         self.game_thread.start()
 
-        if SiNGLE_PLAYER:
-            self.client_thread = threading.Thread(target=client)
+        if SINGLE_PLAYER:
+            self.client_thread = threading.Thread(target=basic_client)
             self.client_thread.daemon = True
             self.client_thread.start()
 

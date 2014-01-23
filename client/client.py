@@ -1,9 +1,11 @@
-from websocket import create_connection
-ws = create_connection("ws://127.0.0.1:8000")
-ws.send('{"type": "client_test", "field": "meep!"}')
-
 import time
-time.sleep(10)
-data = ws.recv()
-print data
-ws.close()
+from websocket import create_connection
+
+def basic_client():
+    time.sleep(2)
+    ws = create_connection("ws://127.0.0.1:8000")
+    ws.send('{"type": "client_test", "message": "basic client message!"}')
+    time.sleep(2)
+    ws.close()
+
+basic_client()
